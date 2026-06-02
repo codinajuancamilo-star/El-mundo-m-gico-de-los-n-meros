@@ -1,0 +1,715 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>🔢 Los Números Mágicos – del 1 al 20</title>
+  <link href="https://fonts.googleapis.com/css2?family=Fredoka+One&family=Nunito:wght@400;700;800&display=swap" rel="stylesheet"/>
+  <style>
+    :root {
+      --sky: #70d6ff;
+      --sun: #FFD166;
+      --coral: #FF6B6B;
+      --mint: #06D6A0;
+      --purple: #9B5DE5;
+      --pink: #F15BB5;
+      --white: #FFFDF7;
+      --dark: #2D2D2D;
+      --card-shadow: 0 8px 24px rgba(0,0,0,0.13);
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: 'Nunito', sans-serif;
+      background: var(--white);
+      color: var(--dark);
+      overflow-x: hidden;
+    }
+
+    /* ===== HERO ===== */
+    .hero {
+      background: linear-gradient(160deg, #70d6ff 0%, #9B5DE5 60%, #F15BB5 100%);
+      padding: 40px 20px 60px;
+      text-align: center;
+      position: relative;
+      overflow: hidden;
+    }
+    .hero::before {
+      content: '';
+      position: absolute;
+      bottom: -2px; left: 0; right: 0;
+      height: 60px;
+      background: var(--white);
+      clip-path: ellipse(55% 100% at 50% 100%);
+    }
+    .hero-title {
+      font-family: 'Fredoka One', cursive;
+      font-size: clamp(2.4rem, 6vw, 4.5rem);
+      color: #fff;
+      text-shadow: 4px 4px 0 rgba(0,0,0,0.2);
+      line-height: 1.15;
+    }
+    .hero-sub {
+      font-size: clamp(1rem, 3vw, 1.4rem);
+      color: rgba(255,255,255,0.9);
+      margin-top: 12px;
+      font-weight: 700;
+    }
+    .hero-mascot {
+      font-size: clamp(4rem, 10vw, 7rem);
+      margin-top: 18px;
+      animation: bounce 1.6s infinite ease-in-out;
+      display: inline-block;
+    }
+    @keyframes bounce {
+      0%,100% { transform: translateY(0); }
+      50%      { transform: translateY(-18px); }
+    }
+    .floating-nums {
+      position: absolute;
+      top: 0; left: 0; right: 0; bottom: 0;
+      pointer-events: none;
+    }
+    .fn {
+      position: absolute;
+      font-family: 'Fredoka One', cursive;
+      font-size: 2rem;
+      color: rgba(255,255,255,0.25);
+      animation: floatup 5s infinite linear;
+    }
+    @keyframes floatup {
+      0%   { transform: translateY(120%) rotate(-10deg); opacity:0; }
+      20%  { opacity: 1; }
+      80%  { opacity: 1; }
+      100% { transform: translateY(-40%) rotate(10deg); opacity:0; }
+    }
+
+    /* ===== NAV TABS ===== */
+    .nav-tabs {
+      display: flex;
+      justify-content: center;
+      gap: 12px;
+      flex-wrap: wrap;
+      padding: 28px 16px 0;
+    }
+    .tab-btn {
+      font-family: 'Fredoka One', cursive;
+      font-size: 1.1rem;
+      padding: 10px 22px;
+      border: none;
+      border-radius: 50px;
+      cursor: pointer;
+      transition: transform .2s, box-shadow .2s;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.12);
+    }
+    .tab-btn:hover  { transform: scale(1.07); }
+    .tab-btn.active { transform: scale(1.1); box-shadow: 0 6px 20px rgba(0,0,0,0.22); }
+    .tab-btn.t1 { background: var(--coral);  color: #fff; }
+    .tab-btn.t2 { background: var(--mint);   color: #fff; }
+    .tab-btn.t3 { background: var(--purple); color: #fff; }
+    .tab-btn.t4 { background: var(--sun);    color: var(--dark); }
+
+    /* ===== SECTION ===== */
+    .section {
+      display: none;
+      padding: 36px 16px 60px;
+      max-width: 1000px;
+      margin: 0 auto;
+      animation: fadeIn .4s ease;
+    }
+    .section.active { display: block; }
+    @keyframes fadeIn { from { opacity:0; transform:translateY(20px); } to { opacity:1; transform:none; } }
+
+    .section-title {
+      font-family: 'Fredoka One', cursive;
+      font-size: clamp(1.8rem, 4vw, 2.8rem);
+      text-align: center;
+      margin-bottom: 28px;
+    }
+
+    /* ===== NUMBER CARDS GRID ===== */
+    .num-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(130px, 1fr));
+      gap: 18px;
+    }
+    .num-card {
+      background: #fff;
+      border-radius: 24px;
+      padding: 22px 10px 16px;
+      text-align: center;
+      box-shadow: var(--card-shadow);
+      cursor: pointer;
+      transition: transform .2s, box-shadow .2s;
+      border: 3px solid transparent;
+      position: relative;
+      overflow: hidden;
+    }
+    .num-card:hover {
+      transform: translateY(-6px) scale(1.04);
+      box-shadow: 0 14px 30px rgba(0,0,0,0.16);
+    }
+    .num-card .big-num {
+      font-family: 'Fredoka One', cursive;
+      font-size: 3rem;
+      line-height: 1;
+    }
+    .num-card .word {
+      font-size: .88rem;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      margin-top: 4px;
+      opacity: .8;
+    }
+    .num-card .emoji-row {
+      font-size: 1.2rem;
+      margin-top: 8px;
+      letter-spacing: 2px;
+      min-height: 1.6rem;
+      word-break: break-all;
+    }
+    /* Colour cycle */
+    .num-card:nth-child(5n+1) { border-color: var(--coral);  background: #fff5f5; }
+    .num-card:nth-child(5n+2) { border-color: var(--mint);   background: #f0fdf9; }
+    .num-card:nth-child(5n+3) { border-color: var(--purple); background: #f6f0ff; }
+    .num-card:nth-child(5n+4) { border-color: var(--sun);    background: #fffbeb; }
+    .num-card:nth-child(5n+5) { border-color: var(--pink);   background: #fff0f9; }
+
+    /* ===== QUIZ ===== */
+    .quiz-box {
+      background: #fff;
+      border-radius: 28px;
+      padding: 32px 24px;
+      box-shadow: var(--card-shadow);
+      text-align: center;
+      max-width: 500px;
+      margin: 0 auto;
+    }
+    .quiz-question {
+      font-family: 'Fredoka One', cursive;
+      font-size: clamp(1.4rem, 4vw, 2rem);
+      margin-bottom: 24px;
+      color: var(--purple);
+    }
+    .quiz-emojis {
+      font-size: 2.2rem;
+      letter-spacing: 4px;
+      margin-bottom: 28px;
+      min-height: 3rem;
+      word-break: break-all;
+    }
+    .quiz-options {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 14px;
+    }
+    .quiz-opt {
+      font-family: 'Fredoka One', cursive;
+      font-size: 1.6rem;
+      padding: 18px;
+      border: 3px solid #ddd;
+      border-radius: 18px;
+      background: #fff;
+      cursor: pointer;
+      transition: all .2s;
+    }
+    .quiz-opt:hover   { background: #f0e0ff; border-color: var(--purple); transform: scale(1.04); }
+    .quiz-opt.correct { background: #d1fae5; border-color: var(--mint);   pointer-events:none; }
+    .quiz-opt.wrong   { background: #fee2e2; border-color: var(--coral);  pointer-events:none; }
+
+    .quiz-feedback {
+      font-family: 'Fredoka One', cursive;
+      font-size: 1.5rem;
+      margin-top: 20px;
+      min-height: 2.4rem;
+    }
+    .quiz-score {
+      font-size: 1rem;
+      font-weight: 700;
+      color: #888;
+      margin-top: 10px;
+    }
+    .btn-next {
+      margin-top: 20px;
+      font-family: 'Fredoka One', cursive;
+      font-size: 1.2rem;
+      padding: 12px 32px;
+      background: var(--purple);
+      color: #fff;
+      border: none;
+      border-radius: 50px;
+      cursor: pointer;
+      display: none;
+      box-shadow: 0 4px 14px rgba(155,93,229,.4);
+      transition: transform .2s;
+    }
+    .btn-next:hover { transform: scale(1.06); }
+
+    /* ===== COUNTING GAME ===== */
+    .count-game {
+      background: #fff;
+      border-radius: 28px;
+      padding: 32px 24px;
+      box-shadow: var(--card-shadow);
+      text-align: center;
+      max-width: 520px;
+      margin: 0 auto;
+    }
+    .count-instr {
+      font-size: 1.1rem;
+      font-weight: 700;
+      margin-bottom: 18px;
+      color: #555;
+    }
+    .count-display {
+      font-size: 3rem;
+      letter-spacing: 6px;
+      margin-bottom: 24px;
+      min-height: 5rem;
+      word-break: break-all;
+    }
+    .count-input-wrap {
+      display: flex;
+      gap: 12px;
+      justify-content: center;
+      flex-wrap: wrap;
+    }
+    .count-input {
+      font-family: 'Fredoka One', cursive;
+      font-size: 1.8rem;
+      width: 100px;
+      padding: 12px;
+      border: 3px solid #ddd;
+      border-radius: 16px;
+      text-align: center;
+      outline: none;
+      transition: border-color .2s;
+    }
+    .count-input:focus { border-color: var(--purple); }
+    .btn-check {
+      font-family: 'Fredoka One', cursive;
+      font-size: 1.3rem;
+      padding: 12px 28px;
+      background: var(--mint);
+      color: #fff;
+      border: none;
+      border-radius: 16px;
+      cursor: pointer;
+      transition: transform .2s;
+    }
+    .btn-check:hover { transform: scale(1.06); }
+    .count-fb {
+      font-family: 'Fredoka One', cursive;
+      font-size: 1.4rem;
+      margin-top: 18px;
+      min-height: 2.2rem;
+    }
+    .btn-newcount {
+      margin-top: 16px;
+      font-family: 'Fredoka One', cursive;
+      font-size: 1.1rem;
+      padding: 10px 26px;
+      background: var(--sun);
+      color: var(--dark);
+      border: none;
+      border-radius: 50px;
+      cursor: pointer;
+      display: none;
+    }
+
+    /* ===== STARS ===== */
+    .stars-bar {
+      text-align: center;
+      font-size: 1.8rem;
+      margin-bottom: 10px;
+      letter-spacing: 4px;
+    }
+
+    /* ===== CHATBOT BUTTON ===== */
+    .chat-fab {
+      position: fixed;
+      bottom: 28px;
+      right: 28px;
+      width: 68px;
+      height: 68px;
+      background: linear-gradient(135deg, var(--purple), var(--pink));
+      border-radius: 50%;
+      box-shadow: 0 6px 24px rgba(155,93,229,.5);
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 2rem;
+      z-index: 1000;
+      transition: transform .25s, box-shadow .25s;
+      animation: pulse 2.5s infinite;
+      border: none;
+    }
+    .chat-fab:hover {
+      transform: scale(1.12);
+      box-shadow: 0 10px 30px rgba(155,93,229,.6);
+      animation: none;
+    }
+    @keyframes pulse {
+      0%,100% { box-shadow: 0 6px 24px rgba(155,93,229,.5); }
+      50%      { box-shadow: 0 6px 40px rgba(155,93,229,.8); }
+    }
+    .chat-tooltip {
+      position: fixed;
+      bottom: 106px;
+      right: 28px;
+      background: var(--dark);
+      color: #fff;
+      font-family: 'Fredoka One', cursive;
+      font-size: .95rem;
+      padding: 8px 14px;
+      border-radius: 12px;
+      z-index: 1000;
+      white-space: nowrap;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity .3s;
+    }
+    .chat-tooltip::after {
+      content: '';
+      position: absolute;
+      bottom: -8px; right: 24px;
+      border: 4px solid transparent;
+      border-top-color: var(--dark);
+    }
+    .chat-fab:hover + .chat-tooltip,
+    .chat-fab:focus + .chat-tooltip { opacity: 1; }
+
+    /* ===== CHATBOT MODAL ===== */
+    .chat-modal {
+      display: none;
+      position: fixed;
+      bottom: 108px;
+      right: 24px;
+      width: min(420px, 94vw);
+      height: 520px;
+      background: #fff;
+      border-radius: 24px;
+      box-shadow: 0 20px 60px rgba(0,0,0,0.25);
+      z-index: 1001;
+      overflow: hidden;
+      flex-direction: column;
+    }
+    .chat-modal.open { display: flex; }
+    .chat-modal-header {
+      background: linear-gradient(135deg, var(--purple), var(--pink));
+      padding: 14px 18px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      justify-content: space-between;
+    }
+    .chat-modal-title {
+      font-family: 'Fredoka One', cursive;
+      font-size: 1.2rem;
+      color: #fff;
+    }
+    .chat-close {
+      background: rgba(255,255,255,0.25);
+      border: none;
+      color: #fff;
+      font-size: 1.2rem;
+      width: 32px; height: 32px;
+      border-radius: 50%;
+      cursor: pointer;
+      font-family: 'Fredoka One', cursive;
+    }
+    .chat-iframe {
+      flex: 1;
+      border: none;
+      width: 100%;
+    }
+
+    /* ===== FOOTER ===== */
+    footer {
+      text-align: center;
+      padding: 30px 16px 80px;
+      font-size: .9rem;
+      color: #aaa;
+    }
+
+    /* ===== RESPONSIVE ===== */
+    @media (max-width: 480px) {
+      .num-grid { grid-template-columns: repeat(auto-fill, minmax(100px, 1fr)); }
+      .quiz-options { grid-template-columns: 1fr 1fr; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- FLOATING BG NUMBERS -->
+<div class="floating-nums" aria-hidden="true">
+  <span class="fn" style="left:8%;  animation-delay:0s;   animation-duration:6s;">1</span>
+  <span class="fn" style="left:20%; animation-delay:1.2s; animation-duration:5s;">5</span>
+  <span class="fn" style="left:35%; animation-delay:2.5s; animation-duration:7s;">10</span>
+  <span class="fn" style="left:55%; animation-delay:0.7s; animation-duration:5.5s;">15</span>
+  <span class="fn" style="left:72%; animation-delay:3s;   animation-duration:6.5s;">20</span>
+  <span class="fn" style="left:88%; animation-delay:1.8s; animation-duration:5.8s;">7</span>
+</div>
+
+<!-- HERO -->
+<header class="hero">
+  <div class="hero-title">🔢 Los Números Mágicos</div>
+  <div class="hero-sub">¡Aprende del 1 al 20 jugando! 🎉</div>
+  <div class="hero-mascot" aria-label="Cohete animado">🚀</div>
+</header>
+
+<!-- TABS -->
+<nav class="nav-tabs" role="tablist">
+  <button class="tab-btn t1 active" onclick="showSection('conoce')"  role="tab">🌟 Conoce los Números</button>
+  <button class="tab-btn t2" onclick="showSection('conteo')"  role="tab">✋ ¡A Contar!</button>
+  <button class="tab-btn t3" onclick="showSection('quiz')"    role="tab">🎯 Quiz</button>
+  <button class="tab-btn t4" onclick="showSection('canciones')" role="tab">🎵 Canción</button>
+</nav>
+
+<!-- ===== SECCIÓN 1: CONOCE LOS NÚMEROS ===== -->
+<section id="conoce" class="section active">
+  <div class="section-title" style="color:var(--coral)">🌟 ¡Conoce cada número!</div>
+  <p style="text-align:center;font-size:1.05rem;margin-bottom:24px;color:#666;">Toca una tarjeta para escuchar el número 🔊</p>
+  <div class="num-grid" id="numGrid"></div>
+</section>
+
+<!-- ===== SECCIÓN 2: CONTEO ===== -->
+<section id="conteo" class="section">
+  <div class="section-title" style="color:var(--mint)">✋ ¡A Contar los Emojis!</div>
+  <div class="count-game">
+    <p class="count-instr">¿Cuántos hay? Escribe el número y presiona ✅</p>
+    <div class="count-display" id="countDisplay">🌟🌟🌟</div>
+    <div class="count-input-wrap">
+      <input class="count-input" id="countInput" type="number" min="1" max="20"
+             placeholder="?" onkeydown="if(event.key==='Enter') checkCount()"/>
+      <button class="btn-check" onclick="checkCount()">✅ ¡Listo!</button>
+    </div>
+    <div class="count-fb" id="countFb"></div>
+    <button class="btn-newcount" id="btnNewCount" onclick="newCountRound()">➡️ Otro reto</button>
+    <div class="stars-bar" id="countStars"></div>
+  </div>
+</section>
+
+<!-- ===== SECCIÓN 3: QUIZ ===== -->
+<section id="quiz" class="section">
+  <div class="section-title" style="color:var(--purple)">🎯 ¡Adivina el número!</div>
+  <div class="quiz-box">
+    <div class="quiz-question" id="qQuestion">¿Cuántos emojis ves?</div>
+    <div class="quiz-emojis"   id="qEmojis"></div>
+    <div class="quiz-options"  id="qOptions"></div>
+    <div class="quiz-feedback" id="qFeedback"></div>
+    <div class="quiz-score"    id="qScore">Puntos: 0</div>
+    <button class="btn-next"   id="btnNext" onclick="nextQuestion()">➡️ Siguiente</button>
+  </div>
+</section>
+
+<!-- ===== SECCIÓN 4: CANCIÓN ===== -->
+<section id="canciones" class="section">
+  <div class="section-title" style="color:var(--sun)">🎵 La Canción de los Números</div>
+  <div style="background:#fff;border-radius:28px;padding:32px;box-shadow:var(--card-shadow);max-width:600px;margin:0 auto;text-align:center;">
+    <div style="font-size:4rem;margin-bottom:16px;">🎶</div>
+    <p style="font-family:'Fredoka One',cursive;font-size:1.4rem;color:var(--purple);margin-bottom:20px;">¡Canta con nosotros!</p>
+    <div style="background:linear-gradient(135deg,#f6f0ff,#fff0f9);border-radius:20px;padding:24px;font-size:1.15rem;line-height:2;font-weight:700;color:#444;">
+      <p>1️⃣ Uno es el sol brillante,</p>
+      <p>2️⃣ Dos ojos para mirar,</p>
+      <p>3️⃣ Tres ruedas en bicicleta,</p>
+      <p>4️⃣ Cuatro patas tiene el gato,</p>
+      <p>5️⃣ Cinco dedos en tu mano,</p>
+      <p>6️⃣ Seis colores del arcoíris,</p>
+      <p>7️⃣ Siete notas de una canción,</p>
+      <p>8️⃣ Ocho patas la araña tiene,</p>
+      <p>9️⃣ Nueve planetas volando van,</p>
+      <p>🔟 Diez deditos para contar.</p>
+      <br/>
+      <p>1️⃣1️⃣ Once velas en tu pastel,</p>
+      <p>1️⃣2️⃣ Doce meses del año son,</p>
+      <p>1️⃣3️⃣ Trece estrellas en el cielo,</p>
+      <p>1️⃣4️⃣ Catorce colores en tu caja,</p>
+      <p>1️⃣5️⃣ Quince mariposas vuelan,</p>
+      <p>1️⃣6️⃣ Dieciséis burbujas de jabón,</p>
+      <p>1️⃣7️⃣ Diecisiete pececitos en el mar,</p>
+      <p>1️⃣8️⃣ Dieciocho flores en el jardín,</p>
+      <p>1️⃣9️⃣ Diecinueve globos de colores,</p>
+      <p>2️⃣0️⃣ ¡Veinte aplausos para ti! 👏</p>
+    </div>
+    <div style="margin-top:28px;">
+      <p style="font-weight:700;color:#888;margin-bottom:12px;">🎬 Video para cantar</p>
+      <div style="border-radius:16px;overflow:hidden;box-shadow:0 4px 16px rgba(0,0,0,0.12);">
+        <iframe width="100%" height="250"
+          src="https://www.youtube.com/embed/DR-cfDsHCGA"
+          title="Canción los números del 1 al 20"
+          frameborder="0"
+          allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+          allowfullscreen
+          style="display:block;border-radius:16px;">
+        </iframe>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- CHATBOT FAB -->
+<button class="chat-fab" onclick="toggleChat()" aria-label="Abrir asistente">🤖</button>
+<div class="chat-tooltip">¡Pregúntame algo!</div>
+
+<!-- CHATBOT MODAL -->
+<div class="chat-modal" id="chatModal" role="dialog" aria-label="Asistente virtual">
+  <div class="chat-modal-header">
+    <div style="display:flex;align-items:center;gap:10px;">
+      <span style="font-size:1.8rem;">🤖</span>
+      <div class="chat-modal-title">¡Hola! Soy tu asistente 🌟</div>
+    </div>
+    <button class="chat-close" onclick="toggleChat()" aria-label="Cerrar">✕</button>
+  </div>
+  <iframe
+    class="chat-iframe"
+    src="https://www.jotform.com/agent/019e858d998b7a939a9b6c5e1d6004335f01"
+    title="Chatbot asistente de números mágicos"
+    sandbox="allow-same-origin allow-scripts allow-forms allow-popups allow-top-navigation">
+  </iframe>
+</div>
+
+<footer>
+  🌈 Los Números Mágicos &bull; Hecho con 💛 para niños de 2 a 6 años
+</footer>
+
+<script>
+  /* ===== DATA ===== */
+  const WORDS = [
+    '', 'UNO','DOS','TRES','CUATRO','CINCO','SEIS','SIETE','OCHO','NUEVE','DIEZ',
+    'ONCE','DOCE','TRECE','CATORCE','QUINCE','DIECISÉIS','DIECISIETE','DIECIOCHO','DIECINUEVE','VEINTE'
+  ];
+  const EMOJIS = ['🌟','🐶','🦋','🍎','🐸','🌈','🚀','🐠','🦄','🎈',
+                  '🍭','🌸','🐼','🎯','🦁','🍕','🌙','⭐','🐢','🎉'];
+
+  function getEmojis(n) { return EMOJIS[n % EMOJIS.length].repeat(n); }
+
+  /* ===== TABS ===== */
+  function showSection(id) {
+    document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+    document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+    document.getElementById(id).classList.add('active');
+    event.target.classList.add('active');
+  }
+
+  /* ===== BUILD CARDS ===== */
+  const grid = document.getElementById('numGrid');
+  for (let i = 1; i <= 20; i++) {
+    const card = document.createElement('div');
+    card.className = 'num-card';
+    card.innerHTML = `
+      <div class="big-num">${i}</div>
+      <div class="word">${WORDS[i]}</div>
+      <div class="emoji-row">${getEmojis(Math.min(i, 10))}</div>`;
+    card.addEventListener('click', () => speakNumber(i));
+    grid.appendChild(card);
+  }
+
+  /* ===== SPEAK ===== */
+  function speakNumber(n) {
+    if ('speechSynthesis' in window) {
+      const u = new SpeechSynthesisUtterance(WORDS[n]);
+      u.lang = 'es-ES';
+      u.rate = 0.85;
+      window.speechSynthesis.cancel();
+      window.speechSynthesis.speak(u);
+    }
+  }
+
+  /* ===== COUNTING GAME ===== */
+  let countAnswer = 0;
+  function newCountRound() {
+    countAnswer = Math.floor(Math.random() * 15) + 1;
+    document.getElementById('countDisplay').textContent = EMOJIS[countAnswer % EMOJIS.length].repeat(countAnswer);
+    document.getElementById('countInput').value = '';
+    document.getElementById('countFb').textContent = '';
+    document.getElementById('btnNewCount').style.display = 'none';
+    document.getElementById('countStars').textContent = '';
+    document.getElementById('countInput').focus();
+  }
+  function checkCount() {
+    const val = parseInt(document.getElementById('countInput').value);
+    const fb = document.getElementById('countFb');
+    if (!val) { fb.textContent = '✏️ Escribe un número primero'; return; }
+    if (val === countAnswer) {
+      fb.textContent = '🎉 ¡Muy bien! ¡Correcto!';
+      fb.style.color = 'var(--mint)';
+      document.getElementById('countStars').textContent = '⭐⭐⭐';
+    } else {
+      fb.textContent = `😅 ¡Casi! La respuesta es ${countAnswer}`;
+      fb.style.color = 'var(--coral)';
+      document.getElementById('countStars').textContent = '⭐';
+    }
+    document.getElementById('btnNewCount').style.display = 'inline-block';
+  }
+  newCountRound();
+
+  /* ===== QUIZ ===== */
+  let qScore = 0, qCorrect = 0, qAnswer = 0;
+  function nextQuestion() {
+    const n = Math.floor(Math.random() * 20) + 1;
+    qAnswer = n;
+    document.getElementById('qEmojis').textContent = getEmojis(Math.min(n, 10));
+    document.getElementById('qQuestion').textContent = n <= 10
+      ? `¿Cuántos emojis ves? 👀`
+      : `¡Escucha! ¿Qué número es ${WORDS[n]}?`;
+    document.getElementById('qFeedback').textContent = '';
+    document.getElementById('btnNext').style.display = 'none';
+
+    // Build 4 options
+    const opts = new Set([n]);
+    while (opts.size < 4) opts.add(Math.floor(Math.random() * 20) + 1);
+    const arr = [...opts].sort(() => Math.random() - .5);
+    const container = document.getElementById('qOptions');
+    container.innerHTML = '';
+    arr.forEach(o => {
+      const btn = document.createElement('button');
+      btn.className = 'quiz-opt';
+      btn.textContent = o;
+      btn.onclick = () => handleAnswer(o, btn);
+      container.appendChild(btn);
+    });
+  }
+  function handleAnswer(chosen, btn) {
+    const fb = document.getElementById('qFeedback');
+    document.querySelectorAll('.quiz-opt').forEach(b => b.disabled = true);
+    if (chosen === qAnswer) {
+      btn.classList.add('correct');
+      fb.textContent = '🎉 ¡Genial! ¡Correcto!';
+      fb.style.color = 'var(--mint)';
+      qScore += 10;
+    } else {
+      btn.classList.add('wrong');
+      document.querySelectorAll('.quiz-opt').forEach(b => {
+        if (parseInt(b.textContent) === qAnswer) b.classList.add('correct');
+      });
+      fb.textContent = `😅 Era el ${qAnswer} — ${WORDS[qAnswer]}`;
+      fb.style.color = 'var(--coral)';
+    }
+    document.getElementById('qScore').textContent = `⭐ Puntos: ${qScore}`;
+    document.getElementById('btnNext').style.display = 'inline-block';
+  }
+  nextQuestion();
+
+  /* ===== CHATBOT ===== */
+  function toggleChat() {
+    const m = document.getElementById('chatModal');
+    m.classList.toggle('open');
+  }
+
+  /* ===== SPEECH: auto-greet ===== */
+  window.addEventListener('load', () => {
+    if ('speechSynthesis' in window) {
+      setTimeout(() => {
+        const u = new SpeechSynthesisUtterance('¡Bienvenido a los Números Mágicos! Toca un número para escucharlo.');
+        u.lang = 'es-ES'; u.rate = 0.88;
+        window.speechSynthesis.speak(u);
+      }, 1200);
+    }
+  });
+</script>
+</body>
+</html>
